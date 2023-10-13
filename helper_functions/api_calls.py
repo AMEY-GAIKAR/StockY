@@ -18,7 +18,7 @@ def fetch_data_intraday(stock):
     response = requests.get(url=ALPHAVANTAGE_API_ENDPOINT, params=parameters_intraday)
     if response.status_code == 200:
         daily_data = response.text
-        with open(rf'{stock}_intraday.csv', mode='w') as file:
+        with open(f'intraday_data/{stock}_intraday.csv', mode='w') as file:
             file.write(daily_data)
 
 def fetch_data_daily(stock):
@@ -32,5 +32,5 @@ def fetch_data_daily(stock):
     response = requests.get(url=ALPHAVANTAGE_API_ENDPOINT, params=parameters_daily)
     if response.status_code == 200:
         daily_data = response.text
-        with open(rf'{stock}_daily.csv', mode='w') as file:
+        with open(f'daily_data/{stock}_daily.csv', mode='w') as file:
             file.write(daily_data)

@@ -12,6 +12,8 @@ class Entity:
         self.create_bollinger_bands_daily()
         self.detect_points_intraday()
         self.detect_points_daily()
+        self.positions_intraday()
+        self.positions_daily()
 
     def create_bollinger_bands_intraday(self, WINDOW=7):
         self.df_intraday['mbb'] = middle_bollinger_band(self.df_intraday['close'], WINDOW)
@@ -46,14 +48,10 @@ class Entity:
     def detect_points_intraday(self):
         self.BUY_POINTS_INTRADAY = np.array(self.df_intraday[(self.df_intraday['close'] < self.df_intraday['lbb'])]['timestamp'])
         self.SELL_POINTS_INTRADAY = np.array(self.df_intraday[(self.df_intraday['close'] > self.df_intraday['ubb'])]['timestamp'])
-        # self.buy_df_intraday = self.df_intraday[(self.df_intraday['close'] < self.df_intraday['lbb'])][['open','high','low', 'close']]
-        # self.sell_df_intraday = self.df_intraday[(self.df_intraday['close'] > self.df_intraday['ubb'])][['open','high','low', 'close']]
 
     def detect_points_daily(self):
         self.BUY_POINTS_DAILY = np.array(self.df_daily[(self.df_daily['close'] < self.df_daily['lbb'])]['timestamp'])
         self.SELL_POINTS_DAILY = np.array(self.df_daily[(self.df_daily['close'] > self.df_daily['ubb'])]['timestamp'])
-        # self.buy_df_daily = self.df_daily[(self.df_daily['close'] < self.df_daily['lbb'])][['open','high','low', 'close']]
-        # self.sell_df_daily = self.df_daily[(self.df_daily['close'] > self.df_daily['ubb'])][['open','high','low', 'close']]
 
     def plot_points_intraday(self):
         plt.plot(self.df_intraday['close'])
@@ -68,4 +66,20 @@ class Entity:
             plt.plot(self.df_daily[self.df_daily['timestamp'] == self.BUY_POINTS_DAILY[n]]['close'], '^', color='g')
         for n in range(len(self.SELL_POINTS_DAILY)):
             plt.plot(self.df_daily[self.df_daily['timestamp'] == self.SELL_POINTS_DAILY[n]]['close'], 'v', color='r')
+    
+    def positions_intraday(self):
+        self.df_intraday['long_open'] = self.df_intraday[(self.df_intraday['close'].shift() < self.df_intraday['lbb'].shift())]['open']
+        self.df_intraday['short_open'] = self.df_intraday[(self.df_intraday['close'].shift() > self.df_intraday['ubb'].shift())]['open']
+
+        self.df_intraday['long_close'] = self.df_intraday[(self.df_intraday['close'].shift() > self.df_intraday['mbb'].shift())]['open']
+        self.df_intraday['short_close'] = self.df_intraday[(self.df_intraday['close'].shift() < self.df_intraday['mbb'].shift())]['open']
+
+    def positions_daily(self):
+        self.df_daily['long_open'] = self.df_daily[(self.df_daily['close'].shift() < self.df_daily['lbb'].shift())]['open']
+        self.df_daily['short_open'] = self.df_daily[(self.df_daily['close'].shift() > self.df_daily['ubb'].shift())]['open']
+
+        self.df_daily['long_close'] = self.df_daily[(self.df_daily['close'].shift() > self.df_daily['mbb'].shift())]['open']
+        self.df_daily['short_close'] = self.df_daily[(self.df_daily['close'].shift() < self.df_daily['mbb'].shift())]['open']
+
+
     
