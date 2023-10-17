@@ -2,9 +2,6 @@ ALPHAVANTAGE_API_ENDPOINT = "https://www.alphavantage.co/query?"
 ALPHAVANTAGE_APIKEY = "KE7MBHHWS14Q5O95"
 
 import requests
-import nasdaqdatalink
-
-nasdaqdatalink.read_key(filename="data_link_apikey/apikey")
 
 def fetch_data_intraday(stock):
     '''GET request to alphavantage API to download csv and save it in assets'''

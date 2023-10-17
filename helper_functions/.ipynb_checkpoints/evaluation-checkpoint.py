@@ -1,63 +1,46 @@
 import numpy as np
 import pandas as pd 
+    
+def eval_long(x:pd.DataFrame):
+    delta = []
+    roi = []
+    lo = x['long_open']
+    lc = x['long_close']
+    array = lc.dropna().index.insert(0,0)
+    K = []
+    SUM = []
+    for n in range(2, len(array)):
+        subarray = lo[array[n-1]:array[n]].dropna()
+        K.append(len(subarray))
+        SUM.append(subarray.sum())
+    lc_lim = lc.dropna()
+    for n in range(len(lc_lim)-1):
+        delta.append((lc_lim.iloc[n] * K[n])-SUM[n])
+        if (SUM[n] != 0):
+            roi.append(((lc_lim.iloc[n] * K[n])-SUM[n])/SUM[n])
+    return delta, roi
 
-def eval(x):
-    position = 0
-    long_open = []
-    long_close = []
+def eval_short(x:pd.DataFrame):
+    delta = []
+    roi = []
+    so = x['short_open']
+    sc = x['short_close']
+    array = sc.dropna().index.insert(0,0)
+    K = []
+    SUM = []
+    for n in range(2, len(array)):
+        subarray = so[array[n-1]:array[n]].dropna()
+        K.append(len(subarray))
+        SUM.append(subarray.sum())
+    sc_lim = sc.dropna()
+    for n in range(len(sc_lim)-1):
+        delta.append(SUM[n]-(sc_lim.iloc[n] * K[n]))
+        if (SUM[n] != 0):
+            roi.append((SUM[n]-(sc_lim.iloc[n] * K[n]))/SUM[n])
+    return delta, roi
 
-    for idx, data in x.iterrows():
-        long_open.append(data['long_open'])
-        long_close.append(data['long_close'])
+def flatten(nested_list):
+    return [item for sublist in nested_list for item in sublist]
 
-        if position == 1 and np.isnan(data['long_close']) == False:
-            position = 0
-        elif position == 0 and np.isnan(data['long_close']) == False:
-            long_close[len(long_close)-1] = np.nan
-        elif position == 0 and np.isnan(data['long_open']) == False:
-            position = 1
-        elif position == 1 and np.isnan(data['long_open']) == False:
-            long_close[len(long_open)-1] = np.nan
-
-    x['long_open'] = long_open
-    x['long_close'] = long_close
-
-    position = 0
-    short_open = []
-    short_close = []
-
-    for idx, data in x.iterrows():
-        short_open.append(data['short_open'])
-        short_close.append(data['short_close'])
-
-        if position == 1 and np.isnan(data['short_close']) == False:
-            position = 0
-        elif position == 0 and np.isnan(data['short_close']) == False:
-            short_close[len(short_close)-1] = np.nan
-        elif position == 0 and np.isnan(data['short_open']) == False:
-            position = 1
-        elif position == 1 and np.isnan(data['short_open']) == False:
-            short_close[len(short_open)-1] = np.nan
-
-    x['short_open'] = short_open
-    x['short_close'] = short_close
-
-def net(x):
-    lo = np.array(x['long_open'].dropna())
-    lc = np.array(x['long_close'].dropna())
-    so = np.array(x['short_open'].dropna())
-    sc = np.array(x['short_close'].dropna())
-
-    net = 0
-
-    if len(lo) > 0:
-        for n in range(len(lc)):
-            if lo[n]:
-                net += lc[n] - lo[n]
-
-        for n in range(len(sc)):
-            if so[n]:
-                net += sc[n] - so[n] 
-        return net
-    else:
-        return 0
+def mean(list):
+    return (sum(list)/len(list))
