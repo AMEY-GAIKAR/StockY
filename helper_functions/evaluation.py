@@ -43,4 +43,7 @@ def flatten(nested_list):
     return [item for sublist in nested_list for item in sublist]
 
 def mean(list):
-    return (sum(list)/len(list))
+    if len(list) != 0:
+        return (sum(list)/len(list))
+    else:
+        return 0
